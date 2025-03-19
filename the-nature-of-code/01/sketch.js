@@ -1,59 +1,28 @@
-class Walker {
-  constructor() {
-    this.x = width / 2;
-    this.y = height / 2;
-    this.xoff = 0;
-    this.yoff = 0;
-    this.ty = 0.0;
-    this.tx = 1000.0;
-  }
-
-  show() {
-    updatePixels();
-    this.ty += random(-1, 1);
-    this.tx += random(-1, 1);
-  }
-
-  step() {
-    loadPixels();
-    let xoff = this.tx;
-    for (let x = 0; x <= width; x++) {
-      let yoff = this.ty;
-      for (let y = 0; y <= height; y++) {
-        let bright = map(noise(xoff, yoff), 0, 1, 0, 255);
-
-        let index = (x + y * width) * 4;
-        pixels[index] = bright;
-        pixels[index + 1] = bright;
-        pixels[index + 2] = bright;
-        pixels[index + 3] = 255;
-        yoff += 0.01;
-      }
-
-      xoff += 0.01;
-    }
-  }
-}
-
-let walker;
+let position;
+let velocity;
 
 function setup() {
-  createCanvas(640, 640);
-  walker = new Walker();
-  background(255);
+    createCanvas(400, 400);
 
-  saveCanvasInit();
+    position = createVector(100, 100);
+    velocity = createVector(1, 3.3);
 }
 
 function draw() {
-  walker.step();
-  walker.show();
-}
+    background(255);
 
-function saveCanvasInit() {
-  const btn = document.querySelector('[data-save]');
+    let mouse = createVector(mouseX, mouseY);
+    let center = createVector(width / 2, height / 2);
+    mouse.sub(center);
 
-  btn.addEventListener('click', () => {
-    saveCanvas();
-  })
+    translate(width / 2, height / 2);
+    stroke(200);
+    strokeWeight(2);
+    line(0, 0, mouse.x, mouse.y);
+
+    mouse.normalize();
+    mouse.mult(50);
+    stroke(0);
+    strokeWeight(8);
+    line(0, 0, mouse.x, mouse.y);
 }
