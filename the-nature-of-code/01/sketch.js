@@ -8,31 +8,10 @@ function setup() {
 }
 
 function draw() {
-    background(255, 255, 255, 0.99);
+    background(255, 255, 255, 0);
     mover.update();
     mover.checkEdges();
     mover.show();
-}
-
-function keyPressed() {
-    if (keyCode === UP_ARROW) {
-        mover.acceleration.y -= 1;
-    } else if (keyCode === DOWN_ARROW) {
-        mover.acceleration.y += 1;
-    } else if (keyCode === LEFT_ARROW) {
-        mover.acceleration.x -= 1;
-    } else if (keyCode === RIGHT_ARROW) {
-        mover.acceleration.x += 1;
-    }
-
-    if (keyCode === ENTER) {
-        mover.acceleration.x = 0;
-        mover.acceleration.y = 0;
-        mover.velocity.x = 0;
-        mover.velocity.y = 0;
-    }
-
-    return false;
 }
 
 class Mover {
@@ -40,10 +19,20 @@ class Mover {
         this.position = createVector(random(width), random(height));
         this.velocity = createVector(0, 0);
         this.acceleration = createVector(0, 0);
-        this.topSpeed = 10;
+        this.topSpeed = 3;
     }
 
     update() {
+        let mouse = createVector(mouseX, mouseY);
+        let dir = p5.Vector.sub(mouse, this.position);
+        let distance = dir.mag(); // get distance before normalizing
+
+        dir.normalize();
+
+        let str = 1 / distance;
+        dir.mult(str * 5);
+
+        this.acceleration = dir;
         this.velocity.add(this.acceleration);
         this.velocity.limit(this.topSpeed);
         this.position.add(this.velocity);
