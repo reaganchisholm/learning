@@ -13,13 +13,16 @@ function draw() {
   background(220);
 
   let gravity = createVector(0, 0.1);
-  moverA.applyForce(gravity);
-  moverB.applyForce(gravity)
+  let gravityA = p5.Vector.mult(gravity, moverA.mass);
+  moverA.applyForce(gravityA);
+  let gravityB = p5.Vector.mult(gravity, moverB.mass)
+  moverB.applyForce(gravityB)
 
   if (mouseIsPressed) {
-    let wind = createVector(1, 0);
-    moverA.applyForce(wind);
-    moverB.applyForce(wind)
+    let wind = createVector(mouseX, mouseY);
+    let windNorm = wind.normalize();
+    moverA.applyForce(windNorm);
+    moverB.applyForce(windNorm)
   }
 
   moverA.update();
