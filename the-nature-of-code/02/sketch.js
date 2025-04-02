@@ -1,43 +1,62 @@
 let position;
 let velocity;
-let moverA;
+let mover;
 let moverB;
+let isDragging = false;
 
 function setup() {
   createCanvas(400, 400);
-  moverA = new Mover(100, 30, 10);
-  moverB = new Mover(300, 30, 2);
+  mover = new Mover(100, 30, 40);
 }
 
 function draw() {
   background(220);
 
   let gravity = createVector(0, 0.1);
-  let gravityA = p5.Vector.mult(gravity, moverA.mass);
-  moverA.applyForce(gravityA);
-  let gravityB = p5.Vector.mult(gravity, moverB.mass)
-  moverB.applyForce(gravityB)
+  let gravityA = p5.Vector.mult(gravity, mover.mass);
 
-  if (mouseIsPressed) {
-    let wind = createVector(mouseX, mouseY);
-    let windNorm = wind.normalize();
-    moverA.applyForce(windNorm);
-    moverB.applyForce(windNorm)
+  if (!isDragging) {
+    mover.applyForce(gravityA);
   }
 
-  moverA.update();
-  moverA.show();
-  moverA.checkEdges();
+  if (mouseIsPressed) {
+    let d = dist(mouseX, mouseY, mover.position.x, mover.position.y);
+    if (d < mover.radius / 2) {
+      isDragging = true;
+    }
+  } else {
+    isDragging = false;
+  }
 
-  moverB.update();
-  moverB.show();
-  moverB.checkEdges();
+  if (isDragging) {
+    let mousePos = createVector(mouseX, mouseY);
+    let dir = p5.Vector.sub(mousePos, mover.position);
+    dir.mult(0.2);
+    mover.velocity = dir;
+  }
+
+  // if (mouseIsPressed) {
+  //   let wind = createVector(0.5, 0);
+  //   mover.applyForce(wind);
+  // }
+
+  if (mover.contactEdge()) {
+    let c = 0.1;
+    let friction = mover.velocity.copy();
+    friction.mult(-1);
+    friction.setMag(c);
+    mover.applyForce(friction);
+  }
+
+  mover.bounceEdges();
+  mover.update();
+  mover.show();
 }
 
 class Mover {
   constructor(x, y, mass) {
     this.mass = mass;
-    this.size = mass * 16;
+    this.radius = mass;
     this.position = createVector(x, y);
     this.velocity = createVector(0, 0);
     this.acceleration = createVector(0, 0);
@@ -54,26 +73,47 @@ class Mover {
     this.acceleration.add(f);
   }
 
+  setPosition(posVec) {
+    this.acceleration.mult(0);
+    this.velocity.mult(0);
+    this.position.set(posVec);
+  }
+
+  getPosition() {
+    return [this.position.x, this.position.y];
+  }
+
   show() {
     stroke(0);
     fill(175);
-    circle(this.position.x, this.position.y, this.size);
+    circle(this.position.x, this.position.y, this.radius);
   }
 
-  checkEdges() {
-    if ((this.position.x + (this.size / 2)) > width) {
-      this.position.x = (height - this.size / 2);
-      this.velocity.x *= -1;
-    } else if ((this.position.x - (this.size / 2)) < 0) {
-      this.position.x = this.size / 2;
-      this.velocity.x *= -1;
+  contactEdge() {
+    return (this.position.y > height - this.radius - 1) || (this.position.x > width - this.radius - 1) || (this.position.x < 0 + this.radius) || (this.position.y < 0 + this.radius);
+  }
+
+  bounceEdges() {
+    let bounce = -0.75;
+
+    if (this.position.y > (height - this.radius / 2)) {
+      // Bottom edge
+      this.position.y = height - this.radius / 2;
+      this.velocity.y *= bounce;
+    } else if (this.position.y < (this.radius / 2)) {
+      // Top edge
+      this.position.y = this.radius / 2;
+      this.velocity.y *= bounce;
     }
-    if ((this.position.y + (this.size / 2)) > height) {
-      this.position.y = (height - this.size / 2);
-      this.velocity.y *= -1;
-    } else if ((this.position.y - (this.size / 2)) < 0) {
-      this.position.y = this.size / 2;
-      this.velocity.y *= -1;
+
+    if (this.position.x > (width - this.radius / 2)) {
+      // Right edge
+      this.position.x = width - this.radius / 2;
+      this.velocity.x *= bounce;
+    } else if (this.position.x < (this.radius / 2)) {
+      // Left edge
+      this.position.x = this.radius / 2;
+      this.velocity.x *= bounce;
     }
   }
 }
