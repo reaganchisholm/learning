@@ -3,14 +3,18 @@ let velocity;
 let mover;
 let moverB;
 let isDragging = false;
+let liquid;
 
 function setup() {
   createCanvas(400, 400);
   mover = new Mover(100, 30, 40);
+  liquid = new Liquid(0, height / 2, width, height / 2, 1);
 }
 
 function draw() {
   background(220);
+
+  liquid.show();
 
   let gravity = createVector(0, 0.1);
   let gravityA = p5.Vector.mult(gravity, mover.mass);
@@ -35,6 +39,11 @@ function draw() {
     mover.velocity = dir;
   }
 
+  if (liquid.contains(mover)) {
+    let dragForce = liquid.calculateDrag(mover);
+    mover.applyForce(dragForce);
+  }
+
   // if (mouseIsPressed) {
   //   let wind = createVector(0.5, 0);
   //   mover.applyForce(wind);
@@ -51,6 +60,7 @@ function draw() {
   mover.bounceEdges();
   mover.update();
   mover.show();
+
 }
 
 class Mover {
@@ -115,6 +125,38 @@ class Mover {
       this.position.x = this.radius / 2;
       this.velocity.x *= bounce;
     }
+  }
+}
+
+class Liquid {
+  constructor(x, y, w, h, c) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.c = c;
+  }
+
+  show() {
+    noStroke();
+    fill(175);
+    rect(this.x, this.y, this.w, this.h);
+  }
+
+  contains(mover) {
+    let pos = mover.position;
+    return (pos.x > this.x && pos.x < this.x + this.w && pos.y > this.y && pos.y < this.y + this.h);
+  }
+
+  calculateDrag(mover) {
+    let speed = mover.velocity.mag();
+    let dragMagnitude = this.c * speed * speed;
+
+    let dragForce = mover.velocity.copy();
+    dragForce.mult(-1);
+    dragForce.setMag(dragMagnitude);
+
+    return dragForce;
   }
 }
 
