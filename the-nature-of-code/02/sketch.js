@@ -1,20 +1,17 @@
 let position;
 let velocity;
 let mover;
-let moverB;
 let isDragging = false;
-let liquid;
+let attractor;
 
 function setup() {
-  createCanvas(400, 400);
-  mover = new Mover(100, 30, 40);
-  liquid = new Liquid(0, height / 2, width, height / 2, 1);
+  createCanvas(1000, 1000);
+  mover = new Mover(100, 30, 20);
+  attractor = new Attractor(50);
 }
 
 function draw() {
   background(220);
-
-  liquid.show();
 
   let gravity = createVector(0, 0.1);
   let gravityA = p5.Vector.mult(gravity, mover.mass);
@@ -39,11 +36,6 @@ function draw() {
     mover.velocity = dir;
   }
 
-  if (liquid.contains(mover)) {
-    let dragForce = liquid.calculateDrag(mover);
-    mover.applyForce(dragForce);
-  }
-
   // if (mouseIsPressed) {
   //   let wind = createVector(0.5, 0);
   //   mover.applyForce(wind);
@@ -57,10 +49,15 @@ function draw() {
     mover.applyForce(friction);
   }
 
-  mover.bounceEdges();
+
+  let force = attractor.attract(mover);
+  mover.applyForce(force);
+
   mover.update();
+  mover.bounceEdges();
   mover.show();
 
+  attractor.show();
 }
 
 class Mover {
@@ -80,6 +77,7 @@ class Mover {
 
   applyForce(force) {
     let f = p5.Vector.div(force, this.mass);
+    f.limit(1);
     this.acceleration.add(f);
   }
 
@@ -160,3 +158,25 @@ class Liquid {
   }
 }
 
+class Attractor {
+  constructor(mass) {
+    this.position = createVector(width / 2, height / 2);
+    this.mass = mass;
+  }
+
+  show() {
+    stroke(0);
+    fill(175, 200);
+    circle(this.position.x, this.position.y, this.mass * 2);
+  }
+
+  attract(m) {
+    let G = 5.0;
+    let force = p5.Vector.sub(this.position, m.position);
+    let distance = force.mag();
+    distance = constrain(distance, 5, 25);
+    let str = (G * this.mass * mover.mass) / (distance * distance);
+    force.setMag(str);
+    return force;
+  }
+}
