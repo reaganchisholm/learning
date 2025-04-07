@@ -1,67 +1,37 @@
-let position;
-let velocity;
-let mover;
-let isDragging = false;
-let attractor;
+
+let bodies = [];
 
 function setup() {
-  createCanvas(1000, 1000);
-  mover = new Mover(100, 30, 20);
-  attractor = new Attractor(50);
+  createCanvas(640, 640);
+
+  for (let i = 0; i < 10; i++) {
+    bodies.push(new Body(random(width), random(height)));
+  }
 }
 
 function draw() {
   background(220);
 
-  let gravity = createVector(0, 0.1);
-  let gravityA = p5.Vector.mult(gravity, mover.mass);
-
-  if (!isDragging) {
-    mover.applyForce(gravityA);
+  for (let i = 0; i < bodies.length; i++) {
+    bodies[i].update();
+    bodies[i].show();
   }
 
-  if (mouseIsPressed) {
-    let d = dist(mouseX, mouseY, mover.position.x, mover.position.y);
-    if (d < mover.radius / 2) {
-      isDragging = true;
+  for (let i = 0; i < bodies.length; i++) {
+    for (let j = 0; j < bodies.length; j++) {
+      if (i !== j) {
+        let force = bodies[j].attract(bodies[i]);
+        bodies[i].applyForce(force);
+      }
+      bodies[i].bounceEdges();
+      bodies[i].update();
+      bodies[i].show();
     }
-  } else {
-    isDragging = false;
   }
-
-  if (isDragging) {
-    let mousePos = createVector(mouseX, mouseY);
-    let dir = p5.Vector.sub(mousePos, mover.position);
-    dir.mult(0.2);
-    mover.velocity = dir;
-  }
-
-  // if (mouseIsPressed) {
-  //   let wind = createVector(0.5, 0);
-  //   mover.applyForce(wind);
-  // }
-
-  if (mover.contactEdge()) {
-    let c = 0.1;
-    let friction = mover.velocity.copy();
-    friction.mult(-1);
-    friction.setMag(c);
-    mover.applyForce(friction);
-  }
-
-
-  let force = attractor.attract(mover);
-  mover.applyForce(force);
-
-  mover.update();
-  mover.bounceEdges();
-  mover.show();
-
-  attractor.show();
 }
 
-class Mover {
-  constructor(x, y, mass) {
+class Body {
+  constructor(x, y, mass = 10) {
     this.mass = mass;
     this.radius = mass;
     this.position = createVector(x, y);
@@ -93,12 +63,21 @@ class Mover {
 
   show() {
     stroke(0);
-    fill(175);
+    fill(255, 0, 0);
     circle(this.position.x, this.position.y, this.radius);
   }
 
   contactEdge() {
     return (this.position.y > height - this.radius - 1) || (this.position.x > width - this.radius - 1) || (this.position.x < 0 + this.radius) || (this.position.y < 0 + this.radius);
+  }
+
+  attract(body) {
+    let G = 10;
+    let force = p5.Vector.sub(this.position, body.position);
+    let d = constrain(force.mag(), 5, 25);
+    let str = (G * this.mass * body.mass) / (d * d);
+    force.setMag(str);
+    return force;
   }
 
   bounceEdges() {
@@ -123,60 +102,5 @@ class Mover {
       this.position.x = this.radius / 2;
       this.velocity.x *= bounce;
     }
-  }
-}
-
-class Liquid {
-  constructor(x, y, w, h, c) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.c = c;
-  }
-
-  show() {
-    noStroke();
-    fill(175);
-    rect(this.x, this.y, this.w, this.h);
-  }
-
-  contains(mover) {
-    let pos = mover.position;
-    return (pos.x > this.x && pos.x < this.x + this.w && pos.y > this.y && pos.y < this.y + this.h);
-  }
-
-  calculateDrag(mover) {
-    let speed = mover.velocity.mag();
-    let dragMagnitude = this.c * speed * speed;
-
-    let dragForce = mover.velocity.copy();
-    dragForce.mult(-1);
-    dragForce.setMag(dragMagnitude);
-
-    return dragForce;
-  }
-}
-
-class Attractor {
-  constructor(mass) {
-    this.position = createVector(width / 2, height / 2);
-    this.mass = mass;
-  }
-
-  show() {
-    stroke(0);
-    fill(175, 200);
-    circle(this.position.x, this.position.y, this.mass * 2);
-  }
-
-  attract(m) {
-    let G = 5.0;
-    let force = p5.Vector.sub(this.position, m.position);
-    let distance = force.mag();
-    distance = constrain(distance, 5, 25);
-    let str = (G * this.mass * mover.mass) / (distance * distance);
-    force.setMag(str);
-    return force;
   }
 }
