@@ -1,47 +1,35 @@
-
-let bodies = [];
+let mover;
 
 function setup() {
-  createCanvas(640, 640);
+  createCanvas(400, 400);
 
-  for (let i = 0; i < 10; i++) {
-    bodies.push(new Body(random(width), random(height)));
-  }
+  mover = new Mover();
 }
 
 function draw() {
-  background(0);
+  background(220);
 
-  for (let i = 0; i < bodies.length; i++) {
-    bodies[i].update();
-    bodies[i].show();
-  }
-
-  for (let i = 0; i < bodies.length; i++) {
-    for (let j = 0; j < bodies.length; j++) {
-      if (i !== j) {
-        let force = bodies[j].attract(bodies[i]);
-        bodies[i].applyForce(force);
-      }
-      bodies[i].bounceEdges();
-      bodies[i].update();
-      bodies[i].show();
-    }
-  }
+  mover.update();
+  mover.show();
 }
 
-class Body {
-  constructor(x, y, mass = 10) {
-    this.mass = mass;
-    this.radius = mass;
-    this.position = createVector(x, y);
+class Mover {
+  constructor() {
+    this.position = createVector(width / 2, height / 2);
     this.velocity = createVector(0, 0);
     this.acceleration = createVector(0, 0);
+    this.radius = 30;
+    this.mass = 1.0;
+    this.angle = 0
+    this.angleVelocity = 0;
+    this.angleAcceleration = 0.01;
   }
 
   update() {
     this.velocity.add(this.acceleration);
     this.position.add(this.velocity);
+    this.angleVelocity += this.angleAcceleration;
+    this.angle += this.angleVelocity;
     this.acceleration.mult(0);
   }
 
@@ -51,33 +39,19 @@ class Body {
     this.acceleration.add(f);
   }
 
-  setPosition(posVec) {
-    this.acceleration.mult(0);
-    this.velocity.mult(0);
-    this.position.set(posVec);
-  }
-
-  getPosition() {
-    return [this.position.x, this.position.y];
-  }
-
   show() {
     stroke(0);
-    fill(255, 0, 0);
-    circle(this.position.x, this.position.y, this.radius);
+    fill(175, 200);
+    push();
+    translate(this.position.x, this.position.y);
+    rotate(this.angle);
+    circle(0, 0, this.radius * 2);
+    line(0, 0, this.radius, 0);
+    pop();
   }
 
   contactEdge() {
     return (this.position.y > height - this.radius - 1) || (this.position.x > width - this.radius - 1) || (this.position.x < 0 + this.radius) || (this.position.y < 0 + this.radius);
-  }
-
-  attract(body) {
-    let G = 0.01;
-    let force = p5.Vector.sub(this.position, body.position);
-    let d = constrain(force.mag(), 5, 25);
-    let str = (G * this.mass * body.mass) / (d * d);
-    force.setMag(str);
-    return force;
   }
 
   bounceEdges() {
