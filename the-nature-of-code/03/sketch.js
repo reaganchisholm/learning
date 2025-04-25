@@ -1,21 +1,31 @@
 let osc = [];
+let startAngle = 0;
+let deltaAngle = 0.2;
+let amplitude = 100;
 
 function setup() {
   createCanvas(400, 400);
 
-  for (let i = 0; i < 10; i++) {
-    let newO = new Oscillator();
-    osc.push(newO);
-  }
 }
 
 function draw() {
-  background(220);
-
-  osc.forEach(o => {
-    o.update();
-    o.show();
-  })
+  background(255);
+  let angle = startAngle;
+  for (let x = 0; x < width; x += 3) {
+    let y = map(tan(angle), -1, 1, 0, height);
+    stroke(0);
+    fill(255);
+    circle(x, y, 48);
+    angle += deltaAngle;
+  }
+  for (let x = 0; x < width; x += 5) {
+    let y = map(sin(angle), -1, 1, 0, height);
+    stroke(0);
+    fill(0);
+    circle(x, y, 48);
+    angle += deltaAngle;
+  }
+  startAngle += 0.02;
 }
 
 class Oscillator {
