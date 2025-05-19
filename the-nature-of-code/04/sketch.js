@@ -1,22 +1,14 @@
-let particle;
+let emitter;
 
 function setup() {
   createCanvas(640, 360);
-  particle = new Particle(width / 2, 20);
+  emitter = new Emitter();
 }
 
 function draw() {
   background(255);
-
-  particle.update();
-  particle.show();
-
-  let gravity = createVector(0, 0.1);
-  particle.applyForce(gravity);
-  if(particle.isDead()){
-    particle = new Particle(width/2, 20);
-    console.log("Particle is dead!");
-  }
+  emitter.updateOrigin(mouseX, mouseY);
+  emitter.run();
 }
 
 class Particle {
@@ -40,11 +32,47 @@ class Particle {
     circle(this.position.x, this.position.y, 8);
   }
 
+  run(){
+    this.update();
+    this.show(); 
+
+    let gravity = createVector(0, 0.1);
+    this.applyForce(gravity);
+  }
+
   applyForce(force) {
     this.acceleration.add(force);
   }
 
   isDead(){
     return (this.lifespan < 0.0);
+  }
+}
+
+class Emitter {
+  constructor(x = width/2, y = height/2){
+    this.origin = createVector(x, y);
+    this.particles = [];
+  }
+
+  updateOrigin(x, y){
+    this.origin = createVector(x, y);
+  }
+
+  addParticle(){
+    this.particles.push(new Particle(this.origin.x, this.origin.y));
+  }
+
+  run(){
+    this.addParticle();
+    let length = this.particles.length - 1;
+    for  (let i = length; i >= 0; i--){
+      let particle = this.particles[i];
+      particle.run();
+
+      if(particle.isDead()){
+        this.particles.splice(i, 1);
+      }
+    }
   }
 }
