@@ -1,23 +1,14 @@
-let emitters = [];
+let emitter;
 
 function setup() {
   createCanvas(640, 360);
+  emitter = new Emitter();
 }
 
 function draw() {
   background(255);
-
-  for (let i = emitters.length - 1; i >= 0; i--){
-    emitters[i].run();
-
-    if(emitters[i].isDead()){
-        emitters.splice(i, 1);
-    }
-  }
-}
-
-function mouseClicked(){
-  emitters.push(new Emitter(mouseX, mouseY));
+  emitter.updateOrigin(mouseX, mouseY);
+  emitter.run();
 }
 
 class Particle {
@@ -62,7 +53,6 @@ class Emitter {
   constructor(x = width/2, y = height/2){
     this.origin = createVector(x, y);
     this.particles = [];
-    this.lifespan = 100;
   }
 
   updateOrigin(x, y){
@@ -70,13 +60,7 @@ class Emitter {
   }
 
   addParticle(){
-    if(this.lifespan > 0.0){
-      this.particles.push(new Particle(this.origin.x, this.origin.y));
-    }
-  }
-
-  isDead(){
-    return this.lifespan < 0.0 && this.particles.length === 0;
+    this.particles.push(new Particle(this.origin.x, this.origin.y));
   }
 
   run(){
@@ -90,7 +74,5 @@ class Emitter {
         this.particles.splice(i, 1);
       }
     }
-
-    this.lifespan -= 1.0;
   }
 }
