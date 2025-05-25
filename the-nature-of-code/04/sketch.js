@@ -1,22 +1,29 @@
 let emitters = [];
+let repeller;
 
 function setup() {
   createCanvas(640, 360);
+
+  repeller = new Repeller(width/2 - 20, height / 2);
 }
 
 function draw() {
   background(255);
-
   let gravity = createVector(0, 0.1);
+
 
   for (let i = emitters.length - 1; i >= 0; i--){
     emitters[i].applyForce(gravity);
+    emitters[i].applyRepeller(repeller);
     emitters[i].run();
 
     if(emitters[i].isDead()){
         emitters.splice(i, 1);
     }
   }
+
+  repeller.show();
+
 }
 
 function mouseClicked(){
@@ -26,7 +33,7 @@ function mouseClicked(){
 class Particle {
   constructor(x,y) {
     this.acceleration = createVector(0, 0);
-    this.velocity = createVector(random(-1, 1), random(-2, 0));
+    this.velocity = createVector(random(-1, 5), random(-1, -5));
     this.position = createVector(x, y);
     this.lifespan = 255.0;
     this.mass = 0.5;
@@ -110,6 +117,13 @@ class Emitter {
     }
   }
 
+  applyRepeller(repeller){
+    for (let particle of this.particles) {
+      let force = repeller.repel(particle);
+      particle.applyForce(force);
+    }
+  }
+
   run(){
     this.addParticle();
     let length = this.particles.length - 1;
@@ -124,5 +138,27 @@ class Emitter {
     }
 
     this.lifespan -= 1.0;
+  }
+}
+
+class Repeller {
+  constructor(x, y){
+    this.position = createVector(x, y);
+    this.power = 250;
+  }
+
+  show(){
+    stroke(0);
+    fill(127);
+    circle(this.position.x, this.position.y, 32);
+  }
+
+  repel(particle){
+    let force = p5.Vector.sub(this.position, particle.position);
+    let distance = force.mag();
+    distance = constrain(distance, 5, 50);
+    let strength = -1 * this.power / (distance * distance);
+    force.setMag(strength);
+    return force;
   }
 }
