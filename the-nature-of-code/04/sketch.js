@@ -1,5 +1,10 @@
 let emitters = [];
 let repeller;
+let img;
+
+function preload() {
+  img = loadImage("texture.png");
+}
 
 function setup() {
   createCanvas(640, 360);
@@ -8,7 +13,9 @@ function setup() {
 }
 
 function draw() {
-  background(255);
+  blendMode(ADD);
+  clear();
+  background(0);
   let gravity = createVector(0, 0.1);
 
 
@@ -16,6 +23,7 @@ function draw() {
     emitters[i].applyForce(gravity);
     emitters[i].applyRepeller(repeller);
     emitters[i].run();
+    emitters[i].addParticle(3);
 
     if(emitters[i].isDead()){
         emitters.splice(i, 1);
@@ -33,7 +41,9 @@ function mouseClicked(){
 class Particle {
   constructor(x,y) {
     this.acceleration = createVector(0, 0);
-    this.velocity = createVector(random(-1, 5), random(-1, -5));
+    let vx = randomGaussian(0, 0.3);
+    let vy = randomGaussian(-1, 0.3);
+    this.velocity = createVector(vx, vy);
     this.position = createVector(x, y);
     this.lifespan = 255.0;
     this.mass = 0.5;
@@ -62,28 +72,9 @@ class Particle {
   }
 
   show(){
-    fill(0, this.lifespan);
-    circle(this.position.x, this.position.y, 8);
-  }
-}
-
-class Confetti extends Particle {
-  constructor(x,y){
-    super(x,y);
-  }
-
-  show(){
-    let angle = map(this.position.x, 0, width, 0, TWO_PI * 2);
-
-    rectMode(CENTER);
-    fill(0, this.lifespan);
-    stroke(0, this.lifespan);
-    push();
-    translate(this.position.x, this.position.y);
-    rotate(angle);
-    rectMode(CENTER);
-    square(0, 0, 12);
-    pop();
+    imageMode(CENTER);
+    tint(255, this.lifespan);
+    image(img, this.position.x, this.position.y);
   }
 }
 
@@ -97,13 +88,9 @@ class Emitter {
     this.origin = createVector(x, y);
   }
 
-  addParticle(){
-    let r = random(1);
-
-    if(r < 0.5){
+  addParticle(numOfParticles){
+    for (let i = numOfParticles; i > 0; i--){
       this.particles.push(new Particle(this.origin.x, this.origin.y));
-    } else {
-      this.particles.push(new Confetti(this.origin.x, this.origin.y));
     }
   }
 
@@ -125,7 +112,6 @@ class Emitter {
   }
 
   run(){
-    this.addParticle();
     let length = this.particles.length - 1;
 
     for  (let i = length; i >= 0; i--){
