@@ -12,7 +12,8 @@ function draw() {
 
   vehicle.update();
   vehicle.show();
-  vehicle.seek(createVector(mouseX, mouseY));
+  // vehicle.seek(createVector(mouseX, mouseY));
+  vehicle.arrive(createVector(mouseX, mouseY));
 }
 
 class Vehicle {
@@ -21,8 +22,8 @@ class Vehicle {
     this.velocity = createVector(0, 0);
     this.acceleration = createVector(0, 0);
     this.r = 6.0
-    this.maxSpeed = 0.5;
-    this.maxForce = 0.05;
+    this.maxSpeed = 3;
+    this.maxForce = 0.5;
   }
 
   update(){
@@ -38,7 +39,23 @@ class Vehicle {
 
   seek(target){
     let desired = p5.Vector.sub(target, this.position);
-    desired.setMag(this.maxSpeed);
+    desired.mult(this.maxSpeed);
+    let steer = p5.Vector.sub(desired, this.velocity);
+    steer.limit(this.maxForce);
+    this.applyForce(steer);
+  }
+
+  arrive(target){
+    let desired = p5.Vector.sub(target, this.position);
+    let d = desired.mag();
+
+    if(d < 100) {
+      let m  = map(d, 0, 100, 0, this.maxSpeed);
+      desired.setMag(m);
+    } else {
+      desired.setMag(this.maxSpeed);
+    }
+
     let steer = p5.Vector.sub(desired, this.velocity);
     steer.limit(this.maxForce);
     this.applyForce(steer);
