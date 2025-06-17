@@ -14,6 +14,7 @@ function draw() {
   vehicle.show();
   // vehicle.seek(createVector(mouseX, mouseY));
   vehicle.arrive(createVector(mouseX, mouseY));
+  // vehicle.boundaries(5);
 }
 
 class Vehicle {
@@ -43,6 +44,30 @@ class Vehicle {
     let steer = p5.Vector.sub(desired, this.velocity);
     steer.limit(this.maxForce);
     this.applyForce(steer);
+  }
+
+ boundaries(offset){
+    let desired = null;
+
+    if(this.position.x < offset){
+      desired = createVector(this.maxSpeed, this.velocity.y);
+    } else if (this.position.x > width - offset) {
+      desired = createVector(-this.maxSpeed, this.velocity.y);
+    }
+
+    if (this.position.y < offset){
+      desired = createVector(this.velocity.x, this.maxSpeed);
+    } else if(this.position.y > height - offset){
+      desired = createVector(this.velocity.x, -this.maxSpeed);
+    }
+
+    if(desired !== null){
+      desired.normalize();
+      desired.mult(this.maxSpeed);
+      let steer = p5.Vector.sub(desired, this.velocity);
+      steer.limit(this.maxForce);
+      this.applyFrce(steer);
+    }
   }
 
   arrive(target){
