@@ -27,12 +27,28 @@ class Vehicle {
     this.applyForce(steer);
   }
 
-  follow(flow){
-    let desired = flow.lookup(this.position);
-    desired.setMag(this.maxspeed);
-    let steer = p5.Vector.sub(desired, this.velocity);
-    steer.limit(this.maxForce);
-    this.applyForce(steer);
+  // follow(flow){
+  //   let desired = flow.lookup(this.position);
+  //   desired.setMag(this.maxspeed);
+  //   let steer = p5.Vector.sub(desired, this.velocity);
+  //   steer.limit(this.maxForce);
+  //   this.applyForce(steer);
+  // }
+
+  follow(path) {
+    let future = this.velocity.copy();
+    future.setMag(25);
+    future.add(this.position);
+
+    let normalPoint = getNormalPoint(future, path.start, path.end);
+    let b = p5.Vector.sub(path.end, path.start);
+    b.setMag(25);
+    let target = p5.Vector.add(normalPoint, b);
+
+    let distance = p5.Vector.dist(normalPoint, future);
+    if(distance > path.radius) {
+      this.seek(target);
+    }
   }
 
   boundaries(offset){
@@ -89,4 +105,16 @@ class Vehicle {
     endShape(CLOSE);
     pop();
   }
+}
+
+function getNormalPoint(position, a, b){
+  let vectorA = p5.Vector.sub(position, a);
+  let vectorB = p5.Vector.sub(b, a);
+
+  vectorB.normalize();
+  vectorB.mult(vectorA.dot(vectorB));
+
+  let normalPoint = p5.Vector.add(a, vectorB);
+
+  return normalPoint;
 }

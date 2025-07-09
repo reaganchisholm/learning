@@ -1,23 +1,21 @@
 let vehicle;
-let flow;
-
+let path; 
 
 function setup() {
   createCanvas(1000, 1000);
 
-  flow = new FlowField(10);
+  path = new Path();
   vehicle = new Vehicle(width/2, height/2);
 }
 
 function draw() {
-  background(0);
+  background(230);
+  path.show();
 
   vehicle.update();
   vehicle.show();
+  vehicle.follow(path);
 
-  vehicle.follow(flow);
-  vehicle.boundaries(5);
-
-  // vehicle.seek(createVector(mouseX, mouseY));
+  //vehicle.seek(createVector(mouseX, mouseY));
   //vehicle.arrive(createVector(mouseX, mouseY));
 }

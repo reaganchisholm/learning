@@ -8,7 +8,7 @@ class Path {
 
   show(){
     strokeWeight(this.radius * 2);
-    stroke(0, 100);
+    stroke(100, 100);
     line(this.start.x, this.start.y, this.end.x, this.end.y);
     strokeWeight(1);
     stroke(0); 
