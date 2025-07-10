@@ -1,11 +1,16 @@
 class Vehicle {
-  constructor(x, y){
+  constructor(x, y, maxSpeed = 3, maxForce = 0.5){
     this.position = createVector(x, y);
     this.velocity = createVector(0, 0);
     this.acceleration = createVector(0, 0);
     this.r = 6.0
-    this.maxSpeed = 3;
-    this.maxForce = 0.5;
+    this.maxSpeed = maxSpeed;
+    this.maxForce = maxForce;
+  }
+
+  run(){
+    this.update();
+    this.show();
   }
 
   update(){
@@ -42,6 +47,7 @@ class Vehicle {
 
     let normalPoint = getNormalPoint(future, path.start, path.end);
     let b = p5.Vector.sub(path.end, path.start);
+  vehicle.show();
     b.setMag(25);
     let target = p5.Vector.add(normalPoint, b);
 

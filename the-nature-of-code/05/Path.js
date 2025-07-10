@@ -1,6 +1,6 @@
 class Path { 
-  constructor(){
-    this.radius = 20;
+  constructor(radius = 20){
+    this.radius = radius;
 
     this.start = createVector(0, height/3);
     this.end = createVector(width, (2 * height) / 3);

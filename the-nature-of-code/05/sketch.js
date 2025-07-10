@@ -4,17 +4,17 @@ let path;
 function setup() {
   createCanvas(1000, 1000);
 
-  path = new Path();
-  vehicle = new Vehicle(width/2, height/2);
+  path = new Path(10);
+  vehicle = new Vehicle(random(0, width), random(0, height));
 }
 
 function draw() {
   background(230);
+
   path.show();
 
-  vehicle.update();
-  vehicle.show();
   vehicle.follow(path);
+  vehicle.run();
 
   //vehicle.seek(createVector(mouseX, mouseY));
   //vehicle.arrive(createVector(mouseX, mouseY));
