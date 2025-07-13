@@ -42,17 +42,37 @@ class Vehicle {
 
   follow(path) {
     let future = this.velocity.copy();
-    future.setMag(25);
+    future.setMag(50);
     future.add(this.position);
 
-    let normalPoint = getNormalPoint(future, path.start, path.end);
-    let b = p5.Vector.sub(path.end, path.start);
-  vehicle.show();
-    b.setMag(25);
-    let target = p5.Vector.add(normalPoint, b);
+    let target = null;
+    let normal = null;
+    let worldRecord = Infinity;
 
-    let distance = p5.Vector.dist(normalPoint, future);
-    if(distance > path.radius) {
+    for (let i = 0; i < path.points.length - 1; i++){
+      let a = path.points[i];
+      let b = path.points[i + 1 ];
+
+      let normalPoint = getNormalPoint(future, a, b);
+
+      if(normalPoint.x < a.x || normalPoint.x > b.x){
+        normalPoint = b.copy();
+      }
+
+      let distance = p5.Vector.dist(future, normalPoint);
+
+      if(distance < worldRecord){
+        worldRecord = distance;
+        normal = normalPoint;
+        target = normalPoint.copy();
+
+        let dir = p5.Vector.sub(b, a);
+        dir.setMag(10);
+        target.add(dir);
+      }
+    }
+
+    if (worldRecord > path.radius && target !== null){
       this.seek(target);
     }
   }
