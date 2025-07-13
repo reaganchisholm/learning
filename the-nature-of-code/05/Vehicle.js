@@ -57,6 +57,13 @@ class Vehicle {
     }
   }
 
+  borders(p) {
+    if(this.position.x > p.end.x + this.r){
+      this.position.x = p.start.x - this.r;
+      this.position.y = p.start.y + (this.position.y - p.end.y);
+    }
+  }
+
   boundaries(offset){
     let desired = null;
 
@@ -101,6 +108,7 @@ class Vehicle {
     let angle = this.velocity.heading();
     fill(127);
     stroke(0);
+    strokeWeight(2);
     push();
     translate(this.position.x, this.position.y);
     rotate(angle);

@@ -12,9 +12,10 @@ function draw() {
   background(230);
 
   path.show();
-
   vehicle.follow(path);
   vehicle.run();
+
+  vehicle.borders(path);
 
   //vehicle.seek(createVector(mouseX, mouseY));
   //vehicle.arrive(createVector(mouseX, mouseY));
