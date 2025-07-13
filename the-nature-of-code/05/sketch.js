@@ -1,23 +1,28 @@
-let vehicle;
+let vehicles;
 let path; 
 
 function setup() {
   createCanvas(1000, 1000);
   newPath();
-  vehicle = new Vehicle(random(0, width), random(0, height));
+
+  vehicles = [];
+  for(let i = 0; i < 20; i++){
+    vehicles.push(new Vehicle(random(width), random(height)));
+  }
 }
 
 function draw() {
   background(230);
 
   path.show();
-  vehicle.follow(path);
-  vehicle.run();
 
-  vehicle.borders(path);
+  for (let vehicle of vehicles){
+    vehicle.separate(vehicles);
 
-  //vehicle.seek(createVector(mouseX, mouseY));
-  //vehicle.arrive(createVector(mouseX, mouseY));
+    vehicle.follow(path);
+    vehicle.run();
+    vehicle.borders(path);
+  }
 }
 
 function newPath(){

@@ -40,6 +40,29 @@ class Vehicle {
   //   this.applyForce(steer);
   // }
 
+  separate(vehicles){
+    let desiredSeparation = 50;
+    let sum = createVector();
+    let count = 0;
+
+    for (let other of vehicles){
+      let d = p5.Vector.dist(this.position, other.position);
+      if (this !== other && d < desiredSeparation){
+        let diff = p5.Vector.sub(this.position, other.position);
+        diff.setMag(1 / d);
+        sum.add(diff);
+        count++;
+      }
+    }
+
+    if(count > 0){
+      sum.setMag(this.maxSpeed);
+      let steer = p5.Vector.sub(sum, this.velocity);
+      steer.limit(this.maxForce);
+      this.applyForce(steer);
+    }
+  }
+
   follow(path) {
     let future = this.velocity.copy();
     future.setMag(50);
