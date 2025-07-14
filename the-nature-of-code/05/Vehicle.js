@@ -24,21 +24,27 @@ class Vehicle {
     this.acceleration.add(force);
   }
 
+  applyBehaviors(vehicles){
+    let separate = this.separate(vehicles);
+    let seek = this.seek(createVector(mouseX, mouseY));
+
+    if(separate){
+      separate.mult(1.5);
+    }
+    seek.mult(0.5);
+
+    this.applyForce(separate);
+    this.applyForce(seek);
+  }
+
   seek(target){
     let desired = p5.Vector.sub(target, this.position);
     desired.mult(this.maxSpeed);
     let steer = p5.Vector.sub(desired, this.velocity);
     steer.limit(this.maxForce);
-    this.applyForce(steer);
-  }
 
-  // follow(flow){
-  //   let desired = flow.lookup(this.position);
-  //   desired.setMag(this.maxspeed);
-  //   let steer = p5.Vector.sub(desired, this.velocity);
-  //   steer.limit(this.maxForce);
-  //   this.applyForce(steer);
-  // }
+    return steer;
+  }
 
   separate(vehicles){
     let desiredSeparation = 50;
@@ -59,7 +65,7 @@ class Vehicle {
       sum.setMag(this.maxSpeed);
       let steer = p5.Vector.sub(sum, this.velocity);
       steer.limit(this.maxForce);
-      this.applyForce(steer);
+      return steer;
     }
   }
 
