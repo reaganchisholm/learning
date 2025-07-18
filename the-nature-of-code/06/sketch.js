@@ -1,45 +1,94 @@
-let flock;
-let grid;
-let cols;
-let rows;
-let resolution = 40;
+const { Engine, Bodies, Composite, Body, Vector, Render } = Matter;
+let boxes = [];
+let boundaries = [];
+let engine;
 
 function setup() {
-  createCanvas(500, 500);
+  let canvas = createCanvas(500, 500);
+  engine = Engine.create();
 
-  cols = floor(width/resolution);
-  rows = floor(height/resolution);
-
-  grid = new Array(cols);
-  for( let i = 0; i < grid.length; i++){
-    grid[i] = new Array(rows);
-  }
-
-  flock = new Flock();
-
-  for(let i = 0; i < 500; i++){
-    let boid = new Boid(width/2, height/2);
-    flock.addBoid(boid);
-  }
+  boundaries.push(new Boundary(width / 4, height - 5, width / 2 - 50, 10));
+  boundaries.push(new Boundary((3 * width) / 4, height - 50, width / 2 - 50, 10));
 }
 
 function draw() {
-  background(230);
+  background(255);
 
+  Engine.update(engine);
 
-  for (let i = 0; i < cols; i++){
-    for (let j = 0; j < rows; j++){
-      grid[i][j] = [];
+  if(mouseIsPressed){
+    let box = new Box(mouseX, mouseY);
+    boxes.push(box);
+  }
+
+  // Iterate over the boxes backwards
+  for (let i = boxes.length - 1; i >= 0; i--) {
+    boxes[i].show();
+    // Remove the Body from the world and the array
+    if (boxes[i].checkEdge()) {
+      boxes[i].removeBody();
+      boxes.splice(i, 1);
     }
   }
 
-  for (let boid of flock.boids){
-    let column = floor(boid.position.x / resolution);
-    let row = floor(boid.position.y / resolution);
-    column = constrain(column, 0, cols - 1);
-    row = constrain(row, 0, rows - 1);
-    grid[column][row].push(boid);
+  // Display all the boundaries
+  for (let i = 0; i < boundaries.length; i++) {
+    boundaries[i].show();
+  }
+}
+
+
+class Box {
+  constructor(x, y) {
+
+    this.w = 16;
+    this.body = Bodies.rectangle(x, y, this.w, this.w);
+    Composite.add(engine.world, this.body);
   }
 
-  flock.run();
+  show() {
+    let position = this.body.position;
+    let angle = this.body.angle;
+
+    rectMode(CENTER);
+    fill(127);
+    stroke(0);
+    strokeWeight(2);
+    push();
+
+    translate(position.x, position.y);
+    rotate(angle);
+
+    square(0, 0, this.w);
+    pop();
+  }
+
+  checkEdge() {
+    return this.body.position.y > height + this.w;
+  }
+
+  removeBody() {
+    Composite.remove(engine.world, this.body);
+  }
+}
+
+class Boundary {
+  constructor(x, y, w, h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    let options = { isStatic: true };
+    this.body = Bodies.rectangle(this.x, this.y, this.w, this.h, options);
+    Composite.add(engine.world, this.body);
+  }
+  
+  // Drawing the box
+  show() {
+    rectMode(CENTER);
+    fill(127);
+    stroke(0);
+    strokeWeight(2);    
+    rect(this.x, this.y, this.w, this.h);
+  }
 }
