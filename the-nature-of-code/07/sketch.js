@@ -2,7 +2,7 @@ let cells;
 let generation = 0;
 let w = 10;
 
-let ruleset = [0, 1, 0, 1, 1, 0 , 1, 0];
+let ruleset = [0, 1, 0, 1, 1, 0, 1, 0];
 
 function setup() {
   createCanvas(500, 500);
@@ -31,11 +31,22 @@ function draw() {
   }
 
   cells = nextgen;
-  generation++;
+
+  if(generation === height/w){
+    generation = 0;
+    ruleset = randomRuleset();
+    background(255);
+  } else {
+    generation++;
+  }
 }
 
 function rules(a, b, c){
   let s = "" + a + b + c;
   let index = parseInt(s, 2);
   return ruleset[7 - index];
+}
+
+function randomRuleset(){
+  return Array.from({ length: 8 }, () => Math.round(Math.random()));
 }
