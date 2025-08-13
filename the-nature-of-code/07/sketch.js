@@ -1,6 +1,7 @@
 let cells;
 let generation = 0;
 let w = 10;
+let generations = [];
 
 let ruleset = [0, 1, 0, 1, 1, 0, 1, 0];
 
@@ -10,19 +11,31 @@ function setup() {
 
   // Set up cells
   cells = new Array(floor(width / w));
-  for (let i = 0; i < cells.length; i++){ cells[i] = 0 }
+  for (let i = 0; i < cells.length; i++){ cells[i] = 0; }
   cells[floor(cells.length/2)] = 1;
 }
 
 function draw() {
+  background(255);
+
+  if(generations.length > (height / w)){
+    generations.shift();
+  }
+
+  generations.push(cells);
+
+  for(let i = 0; i < generations.length - 1; i++){
+    for(let j = 1; j < generations[i].length - 1; j++){
+      if(generations[i][j] === 1){
+        fill(0);
+        square(j * w, height - (i * w), w);
+      }
+    }
+  }
+
   let nextgen = cells.slice();
   
   for (let i = 1; i < cells.length - 1; i++){
-    if(cells[i] === 1){
-      fill(0);
-      square(i * w, generation * w, w);
-    }
-
     let a = cells[i - 1];
     let b = cells[i];
     let c = cells[i + 1];
@@ -31,14 +44,15 @@ function draw() {
   }
 
   cells = nextgen;
+  generation++;
 
-  if(generation === height/w){
-    generation = 0;
-    ruleset = randomRuleset();
-    background(255);
-  } else {
-    generation++;
-  }
+  // if(generation === height/w){
+    // generation = 0;
+    // ruleset = randomRuleset();
+    // background(255);
+  // } else {
+    // generation++;
+  // }
 }
 
 function rules(a, b, c){
