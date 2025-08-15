@@ -23,9 +23,7 @@ function setup() {
 function draw() {
   background(255);
 
-  let copyOfGrid = create2DArray(cols, rows);
-
-  console.log(copyOfGrid);
+  let nextGen = create2DArray(cols, rows);
 
   for (let col = 1; col < grid.length - 1; col++) {
     for (let row = 1; row < grid[col].length - 1; row++) {
@@ -34,25 +32,22 @@ function draw() {
         square(row * w, height - (col * w), w);
       }
 
-      const topLeft = grid[col-1][row-1];
-      const topMiddle = grid[col-1][row];
-      const topRight = grid[col-1][row+1];
 
-      const left = grid[col][row-1];
-      const cell = grid[col][row];
-      const right = grid[col][row+1];
+      let aliveNeighbors = 0;
 
-      const bottomLeft = grid[col+1][row-1];
-      const bottomMiddle = grid[col+1][row];
-      const bottomRight = grid[col+1][row+1];
+      for(let k = -1; k <= 1; k++){
+        for(let l = -1; l <= 1; l++){
+          aliveNeighbors += grid[col + k][row + l]
+        }
+      }
 
-      const aliveNeighbors = topLeft + topMiddle + topRight + left + right + bottomLeft + bottomMiddle + bottomRight;
-
-      copyOfGrid[col][row] = rulesOfLife(cell, aliveNeighbors);
+      let cell = grid[col][row];
+      aliveNeighbors -= cell;
+      nextGen[col][row] = rulesOfLife(cell, aliveNeighbors);
     }
   }
 
-  grid = copyOfGrid;
+  grid = nextGen;
 
 }
 
