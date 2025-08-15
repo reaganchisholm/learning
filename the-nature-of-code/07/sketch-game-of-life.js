@@ -1,5 +1,5 @@
 let grid, cols, rows;
-let w = 10;
+let w = 5;
 
 function setup() {
   createCanvas(500, 500);
@@ -23,7 +23,9 @@ function setup() {
 function draw() {
   background(255);
 
-  let copyOfGrid = grid.map(arr => arr.slice());
+  let copyOfGrid = create2DArray(cols, rows);
+
+  console.log(copyOfGrid);
 
   for (let col = 1; col < grid.length - 1; col++) {
     for (let row = 1; row < grid[col].length - 1; row++) {
@@ -72,4 +74,15 @@ function rulesOfLife(cell, aliveNeighbors) {
   // --- Staying alive: If a cell is alive and has exactly two or three live neighbors, it stays alive.
   // --- Staying dead: If a cell is dead and has anything other than three live neighbors, it stays dead.
   return cell;
+}
+
+function create2DArray(columns, rows){
+  let arr = new Array(cols);
+  for (let i = 0; i < cols; i++) {
+    arr[i] = new Array(rows);
+    for (let j = 0; j < rows; j++){
+      arr[i][j] = 0;
+    }
+  }
+  return arr;
 }
